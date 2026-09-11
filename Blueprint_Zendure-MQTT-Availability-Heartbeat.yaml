@@ -3,7 +3,7 @@ blueprint:
   description: >
     Diese Automation markiert Zendure-MQTT-Entitäten automatisch als online, indem sie bei jedem empfangenen Datenpunkt die passenden Availability-Topics mit dem Status online aktualisiert.
   domain: automation
-  source_url: 
+  source_url: https://github.com/JhonnyTechnic/Zendure---MQTT-Availability-Heartbeat/blob/main/Blueprint_Zendure-MQTT-Availability-Heartbeat.yaml
   author: JhonnyTechnic
 
 triggers:
