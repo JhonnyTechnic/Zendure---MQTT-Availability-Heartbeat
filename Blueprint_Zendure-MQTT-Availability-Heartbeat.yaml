@@ -1,0 +1,44 @@
+blueprint:
+  name: Zendure-MQTT-Availability-Heartbeat
+  description: >
+    Diese Automation markiert Zendure-MQTT-Entitäten automatisch als online, indem sie bei jedem empfangenen Datenpunkt die passenden Availability-Topics mit dem Status online aktualisiert.
+  domain: automation
+  source_url: 
+  author: JhonnyTechnic
+
+triggers:
+  - topic: Zendure/#
+    trigger: mqtt
+conditions:
+  - condition: template
+    value_template: >
+      {% set last = trigger.topic.split('/')[-1] %} {{ last not in
+      ['availability', 'set'] }}
+actions:
+  - variables:
+      parts: '{{ trigger.topic.split(''/'') }}'
+      serial: '{{ parts[2] if parts|length > 2 else '''' }}'
+      value_name: '{{ parts[-1] }}'
+  - data:
+      topic: '{{ trigger.topic }}/availability'
+      payload: online
+      qos: 1
+      retain: false
+    action: mqtt.publish
+  - if:
+      - condition: template
+        value_template: |
+          {{ serial and value_name.startswith(serial ~ '_') }}
+    then:
+      - variables:
+          short_name: |
+            {{ value_name[(serial|length + 1):] }}
+      - data:
+          topic: |
+            Zendure/sensor/{{ serial }}/{{ short_name }}/availability
+          payload: online
+          qos: 1
+          retain: false
+        action: mqtt.publish
+mode: parallel
+max: 500
